@@ -1,4 +1,5 @@
 import { GraphQLServer } from 'graphql-yoga';
+import { v4 as uuidv4 } from 'uuid';
 
 const users = [
     {
@@ -18,8 +19,7 @@ const users = [
         name: 'user-name-3',
         email: 'user-email-3@example.com',
         age: 32
-    },
-
+    }
 ];
 
 const posts = [
@@ -28,21 +28,21 @@ const posts = [
         title: 'post-title-1',
         body: 'post-body-1',
         published: false,
-        author: 'user-id-2'
+        authorId: 'user-id-2'
     },
     {
         id: 'post-id-2',
         title: 'post-title-2',
         body: 'post-body-2',
         published: true,
-        author: 'user-id-1'
+        authorId: 'user-id-1'
     },
     {
         id: 'post-id-3',
         title: 'post-title-3',
         body: 'post-body-3',
         published: false,
-        author: 'user-id-2'
+        authorId: 'user-id-2'
     }
 ];
 
@@ -50,26 +50,26 @@ const comments = [
     {
         id: 'comment-id-1',
         text: 'comment-text-1',
-        author: 'user-id-3',
-        post: 'post-id-2'
+        authorId: 'user-id-3',
+        postId: 'post-id-2'
     },
     {
         id: 'comment-id-2',
         text: 'comment-text-2',
-        author: 'user-id-3',
-        post: 'post-id-2'
+        authorId: 'user-id-3',
+        postId: 'post-id-2'
     },
     {
         id: 'comment-id-3',
         text: 'comment-text-3',
-        author: 'user-id-1',
-        post: 'post-id-1'
+        authorId: 'user-id-1',
+        postId: 'post-id-1'
     },
     {
         id: 'comment-id-4',
         text: 'comment-text-4',
-        author: 'user-id-3',
-        post: 'post-id-1'
+        authorId: 'user-id-3',
+        postId: 'post-id-1'
     }
 ];
 
@@ -78,6 +78,12 @@ const typeDefs = `
         users(search: String): [User!]!
         posts(search: String): [Post!]!
         comments: [Comment!]!
+    }
+
+    type Mutation {
+        createUser(name: String!, email: String!, age: Int): User!
+        createPost(title: String!, body: String!, published: Boolean!, authorId: ID!): Post!
+        createComment(text: String!, authorId: ID!, postId: ID!): Comment!
     }
 
     type User {
@@ -115,17 +121,42 @@ const resolvers = {
                 post.body.toLowerCase().includes(search.toLowerCase())),
         comments: (_, { search }, context, info) => comments
     },
+    Mutation: {
+        createUser: (_, { name, email, age }, context, info) => {
+            const isEmailTaken = users.some((user) => user.email === email);
+            if (isEmailTaken) throw new Error('User cannot be created. Email is already used.');
+            const user = { id: uuidv4(), name, email, age };
+            users.push(user);
+            return user;
+        },
+        createPost: (_, { title, body, published, authorId }, context, info) => {
+            const isUserExist = users.some((user) => user.id === authorId);
+            if (!isUserExist) throw new Error('Post cannot be created. No existing User.');
+            const post = { id: uuidv4(), title, body, published, authorId };
+            posts.push(post);
+            return post;
+        },
+        createComment: (_, { text, authorId, postId }, context, info) => {
+            const isUserExist = users.some((user) => user.id === authorId);
+            const isPostExist = posts.some((post) => post.id === postId && post.published);
+            console.log('isPostExist--', isPostExist)
+            if (!isUserExist || !isPostExist) throw new Error('Comment cannot be created. No existing User or Post or Unpublished Post');
+            const comment = { id: uuidv4(), text, authorId, postId };
+            comments.push(comment);
+            return comment;
+        }
+    },
     User: {
-        posts: (_, args, context, info) => posts.filter((post) => post.author === _.id),
-        comments: (_, args, context, info) => comments.filter((comment) => comment.author === _.id)
+        posts: (_, args, context, info) => posts.filter((post) => post.authorId === _.id),
+        comments: (_, args, context, info) => comments.filter((comment) => comment.authorId === _.id)
     },
     Post: {
-        author: (_, args, context, info) => users.find((user) => user.id === _.author),
-        comments: (_, args, context, info) => comments.filter((comment) => comment.post === _.id)
+        author: (_, args, context, info) => users.find((user) => user.id === _.authorId),
+        comments: (_, args, context, info) => comments.filter((comment) => comment.postId === _.id)
     },
     Comment: {
-        author: (_, args, context, info) => users.find((user) => user.id === _.author),
-        post: (_, args, context, info) => posts.find((post) => post.id === _.post)
+        author: (_, args, context, info) => users.find((user) => user.id === _.authorId),
+        post: (_, args, context, info) => posts.find((post) => post.id === _.postId)
     }
 };
 
