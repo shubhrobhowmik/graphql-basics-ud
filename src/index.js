@@ -50,22 +50,26 @@ const comments = [
     {
         id: 'comment-id-1',
         text: 'comment-text-1',
-        author: 'user-id-3'
+        author: 'user-id-3',
+        post: 'post-id-2'
     },
     {
         id: 'comment-id-2',
         text: 'comment-text-2',
-        author: 'user-id-3'
+        author: 'user-id-3',
+        post: 'post-id-2'
     },
     {
         id: 'comment-id-3',
         text: 'comment-text-3',
-        author: 'user-id-1'
+        author: 'user-id-1',
+        post: 'post-id-1'
     },
     {
         id: 'comment-id-4',
         text: 'comment-text-4',
-        author: 'user-id-3'
+        author: 'user-id-3',
+        post: 'post-id-1'
     }
 ];
 
@@ -82,6 +86,7 @@ const typeDefs = `
         email: String!
         age: Int
         posts: [Post!]!
+        comments: [Comment!]!
     }
 
     type Post {
@@ -90,13 +95,14 @@ const typeDefs = `
         body: String!
         published: Boolean!
         author: User!
+        comments: [Comment!]!
     }
 
     type Comment {
         id: ID!
         text: String!
         author: User!
-
+        post: Post!
     }
 `;
 
@@ -110,13 +116,16 @@ const resolvers = {
         comments: (_, { search }, context, info) => comments
     },
     User: {
-        posts: (_, args, context, info) => posts.filter((post) => post.author === _.id)
+        posts: (_, args, context, info) => posts.filter((post) => post.author === _.id),
+        comments: (_, args, context, info) => comments.filter((comment) => comment.author === _.id)
     },
     Post: {
-        author: (_, args, context, info) => users.find((user) => user.id === _.author)
+        author: (_, args, context, info) => users.find((user) => user.id === _.author),
+        comments: (_, args, context, info) => comments.filter((comment) => comment.post === _.id)
     },
     Comment: {
-        author: (_, args, context, info) => users.find((user) => user.id === _.author)
+        author: (_, args, context, info) => users.find((user) => user.id === _.author),
+        post: (_, args, context, info) => posts.find((post) => post.id === _.post)
     }
 };
 
