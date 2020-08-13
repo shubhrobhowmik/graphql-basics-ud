@@ -122,26 +122,26 @@ const resolvers = {
         comments: (_, { search }, context, info) => comments
     },
     Mutation: {
-        createUser: (_, { name, email, age }, context, info) => {
-            const isEmailTaken = users.some((user) => user.email === email);
+        createUser: (_, args, context, info) => {
+            const isEmailTaken = users.some((user) => user.email === args.email);
             if (isEmailTaken) throw new Error('User cannot be created. Email is already used.');
-            const user = { id: uuidv4(), name, email, age };
+            const user = { id: uuidv4(), ...args };
             users.push(user);
             return user;
         },
-        createPost: (_, { title, body, published, authorId }, context, info) => {
-            const isUserExist = users.some((user) => user.id === authorId);
+        createPost: (_, args, context, info) => {
+            const isUserExist = users.some((user) => user.id === args.authorId);
             if (!isUserExist) throw new Error('Post cannot be created. No existing User.');
-            const post = { id: uuidv4(), title, body, published, authorId };
+            const post = { id: uuidv4(), ...args };
             posts.push(post);
             return post;
         },
-        createComment: (_, { text, authorId, postId }, context, info) => {
-            const isUserExist = users.some((user) => user.id === authorId);
-            const isPostExist = posts.some((post) => post.id === postId && post.published);
+        createComment: (_, args, context, info) => {
+            const isUserExist = users.some((user) => user.id === args.authorId);
+            const isPostExist = posts.some((post) => post.id === args.postId && post.published);
             console.log('isPostExist--', isPostExist)
             if (!isUserExist || !isPostExist) throw new Error('Comment cannot be created. No existing User or Post or Unpublished Post');
-            const comment = { id: uuidv4(), text, authorId, postId };
+            const comment = { id: uuidv4(), ...args };
             comments.push(comment);
             return comment;
         }
