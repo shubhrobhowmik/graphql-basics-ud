@@ -1,0 +1,32 @@
+mutation deleteUser {
+  deleteUser(userId: "bimal-user") {
+    id
+    name
+    email
+    age
+  }
+}
+
+mutation deletePost {
+  deletePost(postId: "post-2") {
+    id
+    title
+    body
+    author {
+      name
+    }
+  }
+}
+
+mutation deleteComment {
+  deleteComment(commentId: "comment-1") {
+    id
+    text
+    author {
+      name
+    }
+    post {
+      title
+    }
+  }
+}

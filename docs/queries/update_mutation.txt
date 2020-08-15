@@ -1,0 +1,46 @@
+mutation updateUser {
+  updateUser(userId: "alexa-user", data: {
+    name: "New Alexa Biatch",
+    email: "new-alexa@example.com",
+    age: 31
+  }) {
+    id
+    name
+    email
+    age
+    posts {
+      title
+    }
+    comments {
+      text
+    }
+  }
+}
+
+mutation updatePost {
+  updatePost(postId: "post-1", data: {
+    title: "Updated titile",
+    body: "Updated body",
+    published: true
+  }) {
+    id
+    title
+    body
+    published
+  }
+}
+
+mutation updateComment {
+  updateComment(commentId: "comment-1", data: {
+    text: "new comment"
+  } ) {
+    id
+    text
+    author {
+      name
+    }
+    post {
+      title
+    }
+  }
+}

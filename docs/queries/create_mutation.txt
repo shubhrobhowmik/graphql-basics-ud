@@ -1,0 +1,45 @@
+mutation createUser {
+  createUser(data: {
+    name: "user-A",
+    email: "A-@example.com"
+  }) {
+    id
+    name
+    email
+    age
+  }
+}
+
+mutation createPost {
+  createPost(data: {
+    title: "post-AAA",
+    body: "AAA - body",
+    published: true,
+    authorId: "0444891f-62d4-45e4-b002-38158ee55b85"
+  }) {
+    id
+    title
+    body
+    author {
+      name
+    }
+  }
+}
+
+mutation createComment {
+  createComment(data: {
+    text: "33-com",
+    authorId: "0444891f-62d4-45e4-b002-38158ee55b85",
+    postId: "post-2"
+  }) {
+    id
+    text
+    author {
+      id
+      name
+    }
+  }
+}
+
+ 
+

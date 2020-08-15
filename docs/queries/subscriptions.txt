@@ -1,0 +1,24 @@
+subscription comment {
+  comment(postId: "post-1") {
+    id
+    text
+    author {
+      name
+    }
+  }
+}
+
+subscription post {
+  post {
+    mutation
+    data {
+      id
+      title
+      body
+      published
+      author {
+        name
+      }
+    }
+  }
+}
